@@ -144,9 +144,9 @@ def profile():
         game_name = game['name']
         game_scores = [s for s in scores if s.game_name == game_name]
         if game_scores:
-            total = sum(s.score for s in game_scores)
+            total = sum(s.tries for s in game_scores)  # Use `tries` instead of `score`
             avg = total / len(game_scores)
-            best = max(s.score for s in game_scores)
+            best = min(s.tries for s in game_scores)  # Least tries is the best
             game_stats[game_name] = {
                 'total': total,
                 'average': round(avg, 2),
@@ -162,7 +162,7 @@ def profile():
 @app.route('/add_score/<game_name>', methods=['GET', 'POST'])
 @login_required
 def add_score(game_name):
-    """Add a score for a specific game."""
+    """Add or update the least number of tries for a specific game and date."""
     # Validate game name
     valid_games = [game['name'] for game in QUIZ_GAMES]
     if game_name not in valid_games:
@@ -170,17 +170,17 @@ def add_score(game_name):
         return redirect(url_for('profile'))
     
     if request.method == 'POST':
-        score_value = request.form.get('score')
+        tries = request.form.get('tries')
         date_str = request.form.get('date')
         
         try:
-            score_value = int(score_value)
+            tries = int(tries)
             if date_str:
                 score_date = datetime.strptime(date_str, '%Y-%m-%d').date()
             else:
                 score_date = datetime.utcnow().date()
             
-            # Check if score already exists for this game and date
+            # Check if a score already exists for this game and date
             existing_score = Score.query.filter_by(
                 user_id=current_user.id,
                 game_name=game_name,
@@ -188,16 +188,19 @@ def add_score(game_name):
             ).first()
             
             if existing_score:
-                # Update existing score
-                existing_score.score = score_value
-                existing_score.created_at = datetime.utcnow()
-                flash(f'Score for {game_name} on {score_date} updated!', 'success')
+                # Update the score only if the new number of tries is less
+                if tries < existing_score.tries:
+                    existing_score.tries = tries
+                    existing_score.created_at = datetime.utcnow()
+                    flash(f'New best score for {game_name} on {score_date}!', 'success')
+                else:
+                    flash(f'Your current best score for {game_name} on {score_date} remains {existing_score.tries} tries.', 'info')
             else:
-                # Create new score
+                # Create a new score
                 score = Score(
                     user_id=current_user.id,
                     game_name=game_name,
-                    score=score_value,
+                    tries=tries,
                     date=score_date
                 )
                 db.session.add(score)
@@ -207,12 +210,64 @@ def add_score(game_name):
             return redirect(url_for('profile'))
             
         except ValueError:
-            flash('Invalid score or date format.', 'danger')
+            flash('Invalid number of tries or date format.', 'danger')
     
     # Get today's date for the form default
     today = datetime.utcnow().date().strftime('%Y-%m-%d')
     return render_template('add_score.html', game_name=game_name, today=today)
-
+    """Add or update the least number of tries for a specific game and date."""
+    # Validate game name
+    valid_games = [game['name'] for game in QUIZ_GAMES]
+    if game_name not in valid_games:
+        flash('Invalid game name.', 'danger')
+        return redirect(url_for('profile'))
+    
+    if request.method == 'POST':
+        tries = request.form.get('tries')
+        date_str = request.form.get('date')
+        
+        try:
+            tries = int(tries)
+            if date_str:
+                score_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            else:
+                score_date = datetime.utcnow().date()
+            
+            # Check if a score already exists for this game and date
+            existing_score = Score.query.filter_by(
+                user_id=current_user.id,
+                game_name=game_name,
+                date=score_date
+            ).first()
+            
+            if existing_score:
+                # Update the score only if the new number of tries is less
+                if tries < existing_score.tries:
+                    existing_score.tries = tries
+                    existing_score.created_at = datetime.utcnow()
+                    flash(f'New best score for {game_name} on {score_date}!', 'success')
+                else:
+                    flash(f'Your current best score for {game_name} on {score_date} remains {existing_score.tries} tries.', 'info')
+            else:
+                # Create a new score
+                score = Score(
+                    user_id=current_user.id,
+                    game_name=game_name,
+                    tries=tries,
+                    date=score_date
+                )
+                db.session.add(score)
+                flash(f'Score for {game_name} added!', 'success')
+            
+            db.session.commit()
+            return redirect(url_for('profile'))
+            
+        except ValueError:
+            flash('Invalid number of tries or date format.', 'danger')
+    
+    # Get today's date for the form default
+    today = datetime.utcnow().date().strftime('%Y-%m-%d')
+    return render_template('add_score.html', game_name=game_name, today=today)
 
 @app.route('/delete_score/<int:score_id>', methods=['POST'])
 @login_required
@@ -230,6 +285,19 @@ def delete_score(score_id):
     flash('Score deleted.', 'info')
     return redirect(url_for('profile'))
 
+@app.route('/scores')
+def scores():
+    """Display the least number of tries per day, per game for all users."""
+    # Query all scores grouped by user, game, and date
+    scores = db.session.query(
+        User.username,
+        Score.game_name,
+        Score.date,
+        db.func.min(Score.tries).label('least_tries')
+    ).join(User).group_by(User.username, Score.game_name, Score.date).all()
+
+    # Render the scores page
+    return render_template('scores.html', scores=scores)
 
 def create_tables():
     """Create database tables."""

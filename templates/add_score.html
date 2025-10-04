@@ -3,12 +3,12 @@
 {% block title %}Add Score - Daily Quiz{% endblock %}
 
 {% block content %}
-<div class="score-form">
+<div class="tries-form">
     <h1>Add Score for {{ game_name }}</h1>
     <form method="POST" action="{{ url_for('add_score', game_name=game_name) }}">
         <div class="form-group">
-            <label for="score">Score</label>
-            <input type="number" id="score" name="score" required min="0">
+            <label for="tries">Tries</label>
+            <input type="number" id="tries" name="tries" required min="0">
             <small>Enter your score for today's game</small>
         </div>
         <div class="form-group">

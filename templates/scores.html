@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Scores - Daily Quiz{% endblock %}
+
+{% block content %}
+<div class="scores-page">
+    <div class="header">
+        <h1>Leaderboard</h1>
+        <p>Check out the best scores for each game!</p>
+    </div>
+    
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Game</th>
+                    <th>Date</th>
+                    <th>Tries</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for score in scores %}
+                <tr>
+                    <td>{{ score.username }}</td>
+                    <td>{{ score.game_name }}</td>
+                    <td>{{ score.date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ score.least_tries }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

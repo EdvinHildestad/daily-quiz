@@ -464,6 +464,19 @@ footer {
     text-align: center;
     margin-top: 3rem;
 }
+.table th, .table td {
+    padding: 15px; /* Increase padding for more space between columns */
+    text-align: left; /* Keep text aligned to the left */
+}
+
+.table th {
+    background-color: #f4f4f4; /* Optional: Add a background color for headers */
+    font-weight: bold;
+}
+
+.table tr:hover {
+    background-color: #f9f9f9; /* Optional: Highlight row on hover */
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
