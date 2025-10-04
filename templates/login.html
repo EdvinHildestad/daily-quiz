@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Daily Quiz{% endblock %}
+
+{% block content %}
+<div class="auth-form">
+    <h1>Login</h1>
+    <form method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="remember" name="remember" value="true">
+            <label for="remember">Remember me</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <p class="auth-switch">Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+</div>
+{% endblock %}

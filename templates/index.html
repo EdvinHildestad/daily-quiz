@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Daily Quiz{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to Daily Quiz</h1>
+    <p>Track your scores across multiple daily quiz games!</p>
+    {% if not current_user.is_authenticated %}
+        <div class="hero-cta">
+            <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="games-section">
+    <h2>Daily Quiz Games</h2>
+    <div class="games-grid">
+        {% for game in games %}
+        <div class="game-card">
+            <h3>{{ game.name }}</h3>
+            <p>{{ game.description }}</p>
+            <div class="game-actions">
+                <a href="{{ game.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Play Now</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('add_score', game_name=game.name) }}" class="btn btn-secondary">Add Score</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% if not current_user.is_authenticated %}
+<div class="features-section">
+    <h2>Features</h2>
+    <div class="features-grid">
+        <div class="feature">
+            <h3>📊 Track Scores</h3>
+            <p>Keep track of your daily quiz scores all in one place</p>
+        </div>
+        <div class="feature">
+            <h3>👤 Personal Profile</h3>
+            <p>Create your own profile and view your statistics</p>
+        </div>
+        <div class="feature">
+            <h3>🎮 Multiple Games</h3>
+            <p>Play and track scores for 6 different daily quiz games</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
