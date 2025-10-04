@@ -9,7 +9,6 @@ class User(UserMixin, db.Model):
     """User model for authentication and profile."""
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -33,7 +32,7 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     game_name = db.Column(db.String(50), nullable=False)
-    score = db.Column(db.Integer, nullable=False)
+    tries = db.Column(db.Integer, nullable=False)
     date = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
