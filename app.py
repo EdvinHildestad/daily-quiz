@@ -68,11 +68,11 @@ def register():
     
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
+        #email = request.form.get('email')
         password = request.form.get('password')
         
         # Validate input
-        if not username or not email or not password:
+        if not username or not password:
             flash('All fields are required.', 'danger')
             return render_template('register.html')
         
@@ -81,12 +81,8 @@ def register():
             flash('Username already exists.', 'danger')
             return render_template('register.html')
         
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered.', 'danger')
-            return render_template('register.html')
-        
         # Create new user
-        user = User(username=username, email=email)
+        user = User(username=username)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()
