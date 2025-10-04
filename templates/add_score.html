@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Add Score - Daily Quiz{% endblock %}
+
+{% block content %}
+<div class="score-form">
+    <h1>Add Score for {{ game_name }}</h1>
+    <form method="POST" action="{{ url_for('add_score', game_name=game_name) }}">
+        <div class="form-group">
+            <label for="score">Score</label>
+            <input type="number" id="score" name="score" required min="0">
+            <small>Enter your score for today's game</small>
+        </div>
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ today }}">
+            <small>Date of the game (defaults to today)</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Score</button>
+            <a href="{{ url_for('profile') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
